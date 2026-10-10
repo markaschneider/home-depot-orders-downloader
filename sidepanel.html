@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Home Depot receipts</title>
+  <link rel="stylesheet" href="sidepanel.css">
+</head>
+<body>
+  <header>
+    <div class="heading-row">
+      <h1>Home Depot receipts</h1>
+      <span class="version-stamp">v1.0 <button type="button" id="compatibilityDate" class="version-date" aria-haspopup="dialog" aria-controls="compatibilityDialog">2026.10.10</button></span>
+    </div>
+    <button type="button" id="instructionsButton" class="details-button header-instructions" aria-haspopup="dialog" aria-controls="instructionsDialog">Instructions</button>
+    <dialog id="compatibilityDialog" class="info-dialog" aria-labelledby="compatibilityTitle">
+      <h2 id="compatibilityTitle">Website compatibility</h2>
+      <p>This extension was developed for Home Depot’s website as it existed on October 10, 2026. Changes to Home Depot’s website may affect how the extension works and could require an update.</p>
+      <p>At the time of this release, we observed an issue on Home Depot’s Purchase History page where the first page of results displayed 19 orders instead of the expected 20.</p>
+      <div class="dialog-actions"><button type="button" id="compatibilityClose" class="secondary">Close</button></div>
+    </dialog>
+    <dialog id="missingHistoryDialog" class="info-dialog" aria-labelledby="missingHistoryTitle">
+      <h2 id="missingHistoryTitle">Purchase History not found</h2>
+      <p>Sign in to Home Depot and open the <strong>Purchase History</strong> page, then click <strong>Scan orders</strong> again.</p>
+      <p class="missing-history-instructions">See <button type="button" id="missingHistoryFullInstructions" class="inline-link">instructions</button>.</p>
+      <div class="dialog-actions">
+        <button type="button" id="missingHistoryClose" class="secondary">Close</button>
+      </div>
+    </dialog>
+    <dialog id="instructionsDialog" class="info-dialog" aria-labelledby="instructionsTitle">
+      <h2 id="instructionsTitle">Instructions</h2>
+      <p>This extension downloads individual Home Depot order details into separate HTML files.</p>
+      <h3>How to use</h3>
+      <ol>
+        <li>Log in to <a href="https://www.homedepot.com/" target="_blank" rel="noopener noreferrer">Home Depot</a> and open <strong>Purchase History</strong>.</li>
+        <li>Select your desired date range and any Home Depot filters.</li>
+        <li>Use <strong>Table Settings</strong> to display columns you intend to filter or organize by.</li>
+        <li>Click <strong>Scan orders</strong> to collect orders across all result pages.</li>
+        <li>Optionally configure <strong>Filtering Options</strong> to limit which orders are downloaded.</li>
+        <li>Optionally configure <strong>Download Location</strong> to select a destination subfolder and organize receipts into subfolders.</li>
+        <li>Click <strong>Test first 2</strong> to test, or <strong>Download all</strong> to download all matching orders.</li>
+      </ol>
+      <h3>Additional information</h3>
+      <ul>
+        <li>Multiple enabled filters must all match (AND); matching is case-insensitive.</li>
+        <li>The extension shows download progress and reports failures.</li>
+        <li>Settings are retained between sessions.</li>
+      </ul>
+      <div class="dialog-actions"><button type="button" id="instructionsClose" class="secondary">Close</button></div>
+    </dialog>
+  </header>
+  <main>
+    <div class="section">
+      <div class="row" id="ordersDiscoveredRow"><span>Orders discovered</span><strong id="found">—</strong></div>
+      <div class="small" id="source">Open Home Depot Purchase History and select your date range.</div>
+      <button id="scan" class="secondary">Scan orders</button>
+    </div>
+    <div class="section">
+      <div class="save-options-heading">
+        <h2 id="filterOptionsTitle">Filtering Options</h2>
+        <button type="button" id="filterOptionsToggle" class="collapse-toggle" aria-expanded="true" aria-controls="filterOptionsBody" aria-labelledby="filterOptionsTitle filterOptionsToggleText">
+          <span id="filterOptionsToggleText">Collapse</span><span class="chevron" aria-hidden="true"></span>
+        </button>
+      </div>
+      <div id="filterOptionsBody">
+        <p class="small filter-help">Only download orders matching the checked filters (case-insensitive). Checked filters are combined using AND.</p>
+        <div class="filter-list">
+          <div class="filter-row"><label><input type="checkbox" data-filter-enabled="po"> PO/Job contains</label><input id="filterPoText" data-filter-text="po" type="text" autocomplete="off" spellcheck="false" aria-label="PO/Job contains"></div>
+          <div class="filter-row"><label><input type="checkbox" data-filter-enabled="project"> Project contains</label><input id="filterProjectText" data-filter-text="project" type="text" autocomplete="off" spellcheck="false" aria-label="Project contains"></div>
+          <div class="filter-row"><label><input type="checkbox" data-filter-enabled="purchaser"> Purchaser contains</label><input id="filterPurchaserText" data-filter-text="purchaser" type="text" autocomplete="off" spellcheck="false" aria-label="Purchaser contains"></div>
+          <div class="filter-row"><label><input type="checkbox" data-filter-enabled="origin"> Origin contains</label><input id="filterOriginText" data-filter-text="origin" type="text" autocomplete="off" spellcheck="false" aria-label="Origin contains"></div>
+          <div class="filter-row"><label><input type="checkbox" data-filter-enabled="payment"> Payment contains</label><input id="filterPaymentText" data-filter-text="payment" type="text" autocomplete="off" spellcheck="false" aria-label="Payment contains"></div>
+        </div>
+      </div>
+      <p class="small filter-count" id="filterCount" aria-live="polite">No filters applied.</p>
+    </div>
+    <div class="section">
+      <div class="save-options-heading">
+        <h2 id="saveOptionsTitle">Download Location</h2>
+        <button type="button" id="saveOptionsToggle" class="collapse-toggle" aria-expanded="true" aria-controls="saveOptionsBody" aria-labelledby="saveOptionsTitle saveOptionsToggleText">
+          <span id="saveOptionsToggleText">Collapse</span><span class="chevron" aria-hidden="true"></span>
+        </button>
+      </div>
+      <div id="saveOptionsBody">
+      <label class="small" for="folder">Download subfolder (within Chrome Downloads)</label>
+      <input id="folder" type="text" value="homedepot_receipts" spellcheck="false" autocomplete="off" aria-describedby="folderHelp">
+      <p id="folderHelp" class="small">You can use nested folders, e.g. Taxes/HomeDepot.</p>
+      <label class="checkbox-row"><input id="groupEnabled" type="checkbox" aria-controls="groupOptions" aria-expanded="false"> <span id="groupLabelText">Separate into subfolders...</span></label>
+      <fieldset id="groupOptions" class="group-options" hidden>
+        <label><input type="radio" name="groupField" value="po" checked> PO/Job</label>
+        <label><input type="radio" name="groupField" value="project"> Project</label>
+        <label><input type="radio" name="groupField" value="purchaser"> Purchaser</label>
+        <label><input type="radio" name="groupField" value="origin"> Origin</label>
+        <label><input type="radio" name="groupField" value="payment"> Payment</label>
+      </fieldset>
+      <button type="button" id="detailsButton" class="details-button" aria-haspopup="dialog" aria-controls="detailsDialog">ⓘ Details</button>
+      <dialog id="detailsDialog" class="info-dialog" aria-labelledby="detailsTitle">
+        <h2 id="detailsTitle">Download details</h2>
+        <p>Filename format:</p>
+        <code class="filename-example">YYYY-MM-DD_homedepot_order_NUMBER.html</code>
+        <p>Subfolder format:</p>
+        <p>Folder names replace characters other than A–Z, a–z, 0–9, hyphen, underscore and period with underscores.</p>
+        <p>Blank or unassigned grouping values use a dedicated folder such as <code>No_PO_Job_Name</code>.</p>
+        <div class="dialog-actions"><button type="button" id="detailsClose" class="secondary">Close</button></div>
+      </dialog>
+      </div>
+    </div>
+    <div class="download-actions">
+      <div class="buttons">
+        <button id="test" disabled>Test first 2</button>
+        <button id="all" disabled>Download all</button>
+      </div>
+      <button id="cancel" class="danger" hidden>Cancel after current step</button>
+    </div>
+    <div class="section" aria-live="polite">
+      <div class="row"><span>Progress</span><strong id="counter">0 / 0</strong></div>
+      <progress id="progress" value="0" max="1"></progress>
+      <div class="row stats"><span id="ok">0 saved</span><span id="failed">0 failed</span></div>
+      <p id="status" class="small">Ready.</p>
+      <p id="current" class="filename"></p>
+    </div>
+    <div class="section">
+      <h2>Results</h2>
+      <div id="log" class="log" aria-live="polite"></div>
+    </div>
+  </main>
+  <script src="sidepanel.js"></script>
+</body>
+</html>

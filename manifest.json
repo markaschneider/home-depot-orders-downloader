@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "Home Depot Receipt Downloader",
+  "description": "Save rendered receipts from your Home Depot Purchase History to Downloads/homedepot_receipts.",
+  "version": "1.0.0",
+  "minimum_chrome_version": "116",
+  "permissions": [
+    "sidePanel",
+    "tabs",
+    "scripting",
+    "downloads",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://*.homedepot.com/*",
+    "https://homedepot.com/*"
+  ],
+  "action": {
+    "default_title": "Home Depot Receipt Downloader"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  }
+}
